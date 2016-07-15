@@ -27,7 +27,7 @@
 #include <math.h>
 
 #define IGTL_IMAGE_HEADER_SIZE          72
-bool Synchonize = false;
+bool Synchonize = true;
 namespace DepthImageServerForPolyData {
   void* ThreadFunction(void* ptr);
   typedef struct {
@@ -127,21 +127,10 @@ namespace DepthImageServerForPolyData {
             if (strcmp(headerMsg->GetDeviceType(), "GET_POLYDATA") == 0)
             {
               std::cerr << "Received a GET_POLYDATA message." << std::endl;
-
-              igtl::GetPolyDataMessage::Pointer getPolyDataMsg;
-              getPolyDataMsg = igtl::GetPolyDataMessage::New();
-              getPolyDataMsg->SetMessageHeader(headerMsg);
-              getPolyDataMsg->AllocatePack();
-
-              socket->Receive(getPolyDataMsg->GetPackBodyPointer(), getPolyDataMsg->GetPackBodySize());
-              int c = getPolyDataMsg->Unpack(1);
-              if (c & igtl::MessageHeader::UNPACK_BODY) // if CRC check is OK
-              {
-                td.glock = glock;
-                td.socket = socket;
-                td.stop = 0;
-                threadID = threader->SpawnThread((igtl::ThreadFunctionType) &ThreadFunction, &td);
-              }
+              td.glock = glock;
+              td.socket = socket;
+              td.stop = 0;
+              threadID = threader->SpawnThread((igtl::ThreadFunctionType) &ThreadFunction, &td);
             }
             else if (strcmp(headerMsg->GetDeviceType(), "STP_POLYDATA") == 0)
             {
@@ -224,7 +213,7 @@ namespace DepthImageServerForPolyData {
           {
             pointArray->AddPoint(&(td->td_Server->points[i*3+j]));
           }
-          igtlFloat32 colorData[3] = { td->td_Server->pointsColor[i].rgbRed, td->td_Server->pointsColor[i].rgbGreen,td->td_Server->pointsColor[i].rgbBlue };
+          igtlFloat32 colorData[4] = { td->td_Server->pointsColor[i].rgbRed, td->td_Server->pointsColor[i].rgbGreen,td->td_Server->pointsColor[i].rgbBlue, 0};
           attribute->SetNthData(i, colorData);
         }
         polyMsg->SetPoints(pointArray);
