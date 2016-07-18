@@ -218,6 +218,7 @@ namespace DepthImageServerForPolyData {
         }
         polyMsg->SetPoints(pointArray);
         polyMsg->AddAttribute(attribute);
+        polyMsg->SetDeviceName("KinectRGBD");
         polyMsg->Pack();
         glock->Lock();
         socket->Send(polyMsg->GetPackPointer(), polyMsg->GetPackSize());
